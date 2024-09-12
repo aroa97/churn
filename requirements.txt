@@ -1,0 +1,9 @@
+# python=3.12.4
+numpy
+pandas
+streamlit
+matplotlib
+plotly
+sqlalchemy
+mysql
+pymysql
