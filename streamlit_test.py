@@ -17,9 +17,9 @@ db_host = "localhost"
 db_port = "3306"
 db_name = "churn_db"
 
-engine = create_engine(
-    f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-)
+# engine = create_engine(
+#     f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+# )
 
 # 사이드바를 통해 페이지 선택
 st.sidebar.title("목록")
