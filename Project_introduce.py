@@ -20,4 +20,5 @@ st.set_page_config(page_title="헬스장 회원탈퇴 예측", layout="wide")
 #     f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 # )
 
+st.title("My first project!")
 
