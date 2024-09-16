@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 
+# 페이지 이름 설정
+st.set_page_config(page_title="데이터", layout="wide")
+
 def data_page_func(data_selectbox):
     file_name_paths = f'./data/{data_selectbox}.csv'
     if file_name_paths:
