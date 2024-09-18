@@ -7,3 +7,6 @@ matplotlib
 plotly
 sqlalchemy
 pymysql
+mlxtend
+pyecharts
+streamlit-echarts
