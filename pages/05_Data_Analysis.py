@@ -4,6 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mlxtend.plotting import heatmap
 
+from pyecharts import options as opts
+from pyecharts.charts import Bar
+import streamlit.components.v1 as components
+
 # 페이지 이름 설정
 st.set_page_config(page_title="데이터 분석", layout="wide")
 
@@ -16,7 +20,7 @@ tab = st.tabs(["데이터베이스", "데이터 결합", "데이터 가공", "�
 with tab[0]:
     st.subheader("데이터베이스")
     st.text("Python을 사용해 MySQL에 upload")
-    st.image("./images/mysql/mysql_insert_data.png", width=600)
+    st.image("./images/mysql/mysql_insert_data.png", width=900)
 
     with st.expander("Source Code"):
         st.code('''import pandas as pd
@@ -355,11 +359,24 @@ with tab[7]:
 
     bar_cols = ['mean', 'min', '25%', '50%', '75%', 'max']
 
+    # radio_hist = st.radio(label="", label_visibility='collapsed',
+    #                       options=['mean', 'median', 'max', 'min', 'membership_period'], horizontal=True)
+
+    # plt.figure(figsize=(10, 5))
+    # plt.bar(bar_cols, is_deleted_f[radio_hist][bar_cols].values, width=0.5, align='edge', color='orange', label='False')
+    # plt.bar(bar_cols, is_deleted_t[radio_hist][bar_cols].values, width=0.5, label='is_deleted_True')
+    # plt.legend(loc='upper left')
+    # st.pyplot(plt)
+
+
     radio_hist = st.radio(label="", label_visibility='collapsed',
                           options=['mean', 'median', 'max', 'min', 'membership_period'], horizontal=True)
-
-    plt.figure(figsize=(10, 5))
-    plt.bar(bar_cols, is_deleted_f[radio_hist][bar_cols].values, width=0.5, align='edge', color='orange', label='False')
-    plt.bar(bar_cols, is_deleted_t[radio_hist][bar_cols].values, width=0.5, label='is_deleted_True')
-    plt.legend(loc='upper left')
-    st.pyplot(plt)
+    c = (Bar()
+        .add_xaxis(["mean", "min", "25%", "50%", '75%', 'max'])
+        .add_yaxis('deleted', list(np.round(is_deleted_t.loc[bar_cols, radio_hist].values, 2)))
+        .add_yaxis('continue', list(np.round(is_deleted_f.loc[bar_cols, radio_hist].values, 2)))
+        .set_global_opts(title_opts=opts.TitleOpts(title=f"Group Total", subtitle=""),
+                         toolbox_opts=opts.ToolboxOpts())
+        .render_embed() # generate a local HTML file
+    )
+    components.html(c, width=1000, height=1000)

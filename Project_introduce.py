@@ -2,9 +2,9 @@ import streamlit as st
 
 if __name__ == "__main__":
     # 페이지 이름 설정
-    st.set_page_config(page_title="헬스장 회원탈퇴 예측 프로젝트", layout="wide")
+    st.set_page_config(page_title="헬스장 회원탈퇴예측 프로젝트", layout="wide")
 
-    st.title("헬스장 회원탈퇴 예측 프로젝트")
+    st.title("헬스장 회원탈퇴예측 프로젝트")
 
     st.markdown("\n")
 
