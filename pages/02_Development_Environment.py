@@ -69,7 +69,7 @@ with tab[4]:
         #             """, unsafe_allow_html=True)
         st.image("./images/logo/oracle_logo.png", width=500)
 with tab[5]:
-    st.subheader("머신 러닝 및 러닝")
+    st.subheader("머신 러닝 및 딥 러닝")
     st.markdown("**Scikit-learn**, **TensorFlow**(Keras)")
     col1, col2 = st.columns(2)
     with col1 :
