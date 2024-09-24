@@ -10,3 +10,4 @@ pymysql
 mlxtend
 pyecharts
 streamlit-echarts
+gradio
