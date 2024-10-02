@@ -275,14 +275,14 @@ print(model.score(X_test, y_test))
     elif radio_linear == "모델 평가":
         col1, col2 = st.columns(2)
         with col1:
-            st.image('./images/python/python_model_score.png', width=300)
-            st.image('./images/python/python_model_predict.png', width=500)
-            st.image('./images/python/python_model_predict2.png', use_column_width=True)
+            st.image('./streamlit_images/python/python_model_score.png', width=300)
+            st.image('./streamlit_images/python/python_model_predict.png', width=500)
+            st.image('./streamlit_images/python/python_model_predict2.png', use_column_width=True)
         with col2 :
-            st.image('./images/python/python_linear_model_coef.png', width=400)
+            st.image('./streamlit_images/python/python_linear_model_coef.png', width=400)
 
     elif radio_linear == "데이터 업로드":
-        st.image('./images/mysql/mysql_create_use_log_months.png', width=800)
+        st.image('./streamlit_images/mysql/mysql_create_use_log_months.png', width=800)
         with st.expander("Source Code"):
             st.code('''
 import pandas as pd

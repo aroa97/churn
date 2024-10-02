@@ -94,13 +94,13 @@ score_test = correct / data_count
             
 print(score_test)
 ''')
-    st.image('./images/python/python_decisiontree_predict.png', width=500)
+    st.image('./streamlit_images/python/python_decisiontree_predict.png', width=500)
 with tab[2]:
     st.subheader('모델 평가 및 튜닝')
     radio = st.radio(label="", label_visibility='collapsed', options=["과적합 방지", "주요 변수 확인", '혼동 행렬(Confusion matrix)'], horizontal=True)
 
     if radio == '과적합 방지':
-        st.image("./images/python/python_decisiontree_score.png", width=300)
+        st.image("./streamlit_images/python/python_decisiontree_score.png", width=300)
         st.code('''
 from sklearn.tree import DecisionTreeClassifier
 import sklearn.model_selection
@@ -115,9 +115,9 @@ model.fit(X_train, y_train)
 print(model.score(X_train, y_train))
 print(model.score(X_test, y_test))
 ''')
-        st.image("./images/python/python_decisiontree_score2.png", width=300)
+        st.image("./streamlit_images/python/python_decisiontree_score2.png", width=300)
     elif radio == '주요 변수 확인':
-        st.image('./images/python/python_decisiontree_model_coef.png', width=500)
+        st.image('./streamlit_images/python/python_decisiontree_model_coef.png', width=500)
     elif radio == '혼동 행렬(Confusion matrix)':
         col1, col2 = st.columns(2)
 

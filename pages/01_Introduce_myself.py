@@ -22,4 +22,4 @@ st.markdown("\n")
 st.subheader("그 외")
 
 st.link_button("Go to other homepage", "https://aroa97.github.io/Web/MyWeb/html/Main.html")
-st.image("./images/background_image.png", width=600)
+st.image("./streamlit_images/background_image.png", width=600)

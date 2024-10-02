@@ -20,7 +20,7 @@ tab = st.tabs(["데이터베이스", "데이터 결합", "데이터 가공", "�
 with tab[0]:
     st.subheader("데이터베이스")
     st.text("Python을 사용해 MySQL에 upload")
-    st.image("./images/mysql/mysql_insert_data.png", width=900)
+    st.image("./streamlit_images/mysql/mysql_insert_data.png", width=900)
 
     with st.expander("Source Code"):
         st.code('''import pandas as pd
@@ -134,7 +134,7 @@ with tab[1]:
                           options=['customer_master + class_master', "customer_join + campaign_master"],
                           horizontal=True)
     if radio_join == "customer_master + class_master":
-        st.image("./images/mysql/mysql_create_customer_join.png", use_column_width=True)
+        st.image("./streamlit_images/mysql/mysql_create_customer_join.png", use_column_width=True)
         
         with st.expander("Source Code"):
             st.code("""use churn_db;
@@ -149,7 +149,7 @@ left join class_master on customer_master.class = class_master.class;
 
 select * from customer_join;""")
     elif radio_join == "customer_join + campaign_master":
-        st.image("./images/mysql/mysql_join_campaign_master.png", use_column_width=True)
+        st.image("./streamlit_images/mysql/mysql_join_campaign_master.png", use_column_width=True)
         
         with st.expander("Source Code") :
             st.code("""alter table customer_join
@@ -177,7 +177,7 @@ with tab[2]:
         st.text('"use_log" data를 이용')
 
         if radio_data2 == '이용이력':
-            st.image("./images/python/python_uselog_processing.png")
+            st.image("./streamlit_images/python/python_uselog_processing.png")
 
             with st.expander("Source Code"):
                 st.code("""
@@ -192,7 +192,7 @@ df_log_customer = df_log_customer.reset_index(drop=False)
 df_log_customer.head()
 """)
         elif radio_data2 == '정기이용여부':
-            st.image("./images/python/python_uselog_processing2.png")
+            st.image("./streamlit_images/python/python_uselog_processing2.png")
 
             with st.expander("Source Code"):
                 st.code("""
@@ -207,7 +207,7 @@ df_log_weekday.head()
 """)
 
     elif radio_data == 'data join':
-        st.image("./images/python/python_join.png")
+        st.image("./streamlit_images/python/python_join.png")
 
         with st.expander("Source Code"):
             st.code("""
@@ -217,7 +217,7 @@ df_customer = pd.merge(df_customer, df_log_weekday[["customer_id", "routine_flg"
 df_customer.head()
 """)
     elif radio_data == 'data processing2':
-        st.image("./images/python/python_membership_period.png")
+        st.image("./streamlit_images/python/python_membership_period.png")
 
         with st.expander("Source Code"):
             st.code("""
@@ -233,7 +233,7 @@ for i in range(len(df_customer)):
 df_customer.head()
 """)
     elif radio_data == 'database upload':
-        st.image("./images/mysql/mysql_customer_join_upload.png")
+        st.image("./streamlit_images/mysql/mysql_customer_join_upload.png")
 
         with st.expander("Source Code"):
             st.code('''
@@ -325,13 +325,16 @@ with tab[5]:
 
     st.text("데이터의 상관관계 시각화")
 
-    plt.clf()
+    col1, _ = st.columns(2)
 
-    cols = ['is_deleted', 'mean', 'median', 'max', 'min', 'routine_flg', 'membership_period']
-    cm = np.corrcoef(df_customer[cols].values.T)
-    hm = heatmap(cm, row_names=cols, column_names=cols, cmap=plt.cm.Blues)
+    with col1:
+        plt.clf()
 
-    st.pyplot(plt)
+        cols = ['is_deleted', 'mean', 'median', 'max', 'min', 'routine_flg', 'membership_period']
+        cm = np.corrcoef(df_customer[cols].values.T)
+        hm = heatmap(cm, row_names=cols, column_names=cols, cmap=plt.cm.Blues)
+
+        st.pyplot(plt)
 with tab[6]:
     st.subheader("통계")
     st.text("탈퇴회원과 지속회원의 이용횟수 및 멤버십 기간 통계")
