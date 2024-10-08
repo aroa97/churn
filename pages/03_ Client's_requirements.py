@@ -39,3 +39,28 @@ with tab[0]:
 
 with tab[1]:
     st.subheader('목표와 핵심 결과')
+
+    col1, col2, col3, _ = st.columns(4)
+
+    with col1:
+        st.markdown("### :red[Objective 목표]")
+        st.text("헬스장 회원 데이터로 탈퇴 가능성을 예측할 수 있는 모델을 만든다")
+    with col2:
+        st.markdown("### :red[Key Results 핵심 결과]")
+        st.text("1. 다양한 머신러닝 알고리즘을 적용")
+        st.text("2. 탈퇴 예측률 90% 이상")
+    with col3:
+        st.markdown("### :red[Initiatives 해야 할 일]")
+        st.text("1. 다양한 머신러닝 알고리즘을 적용")
+        st.markdown("""
+                    \n- 선형회귀에서 의사결정나무까지 점직적으로 모델 성능 증가 시키기
+                    \n- 앙상블 기법 활용
+                    """)
+        
+        st.markdown('\n')
+        
+        st.text("2. 탈퇴 예측률 90% 이상")
+        st.markdown("""
+                    \n- 탈퇴 예측률 평가지표 선정
+                    \n- WER, CER 측정 후 파라미터 수정
+                    """)

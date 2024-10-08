@@ -3,7 +3,7 @@ from streamlit_function import func
 
 func.set_title(__file__)
 
-tab = st.tabs(["ChatBot", 'LangChain', 'WebServer'])
+tab = st.tabs(["ChatBot", 'LangChain', 'WebServer', 'DataBase'])
 
 with tab[0]:
     st.subheader("ChatBot")
@@ -33,3 +33,27 @@ with tab[2]:
     with col3:
         func.image_resize('tomcat_logo.png', __file__, 150)
         func.image_resize('nginx_logo.png', __file__, 150)
+with tab[3]:
+    st.header("DataBase")
+
+    radio_database = st.radio(label='database', label_visibility='collapsed', horizontal=True, options=['database', 'ERD'])
+
+    if radio_database == 'database':
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.text("MySQL")
+            st.image('./streamlit_images/future_plans/mysql_workbench.png', use_column_width=True)
+        with col2:
+            st.text("Oracle")
+            st.image('./streamlit_images/future_plans/oracle_sqldeveloper.png', use_column_width=True)
+        with col3:
+            st.text("MongoDB")
+            st.image('./streamlit_images/future_plans/mongodb_compass.png', use_column_width=True)
+
+    elif radio_database == "ERD":
+        st.text("MySQL")
+        func.image_resize("mysql_erd.png", __file__, 500)
+        
+
