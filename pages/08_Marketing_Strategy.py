@@ -179,6 +179,8 @@ plt.show()
             # pandas의 DataFrame.any() 메서드는 데이터프레임 내의 값이 True인지 여부를 확인하는 데 사용됩니다.
             df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
 
+            plt.clf()
+
             # 박스플롯 시각화로 잘 제거되었는지 확인
             plt.figure(figsize=(12, 6))
             sns.boxplot(data=df)
@@ -186,7 +188,93 @@ plt.show()
             st.pyplot(plt)
 
     elif radio_eda == "변수 간의 관계 시각화":
-        st.text("")
+        radio_plot = st.radio(label="plot", label_visibility='collapsed', horizontal=True, options=["Pair Plot", "Bar", "Pie", "Histogram", "Violin Plot", "Linear, Scatter", "Etc", "Corrcoef"])
+        if radio_plot == "Pair Plot":
+            with st.expander("Source"):
+                st.code(""" 
+# python jupyter notebook
+sns.pairplot(df)
+plt.show()
+                """)
+            st.image("./streamlit_images/marketing_strategy/seaborn_pairplot.png")
+
+        elif radio_plot == "Bar":
+            with st.expander("Source"):
+                st.code("""
+g = sns.FacetGrid(df, col="Churn", height=4, aspect=1.5)
+g.map(plt.hist, "Age")
+plt.show()
+
+# 총 평균 추가 요금 (Avg_additional_charges_total)
+g.map(plt.hist, "Avg_additional_charges_total")
+plt.show()
+
+# 가입 기간 (Lifetime) - 사용자가 체육관에 처음 등록한 이후 경과한 시간(개월 단위).
+g.map(plt.hist, "Lifetime")
+plt.show()
+                """)
+            plt.clf()
+
+            g = sns.FacetGrid(df, col="Churn", height=4, aspect=1.5)
+            g.map(plt.hist, "Age")
+            st.pyplot(plt)
+
+            # 총 평균 추가 요금 (Avg_additional_charges_total)
+            g.map(plt.hist, "Avg_additional_charges_total")
+            st.pyplot(plt)
+
+            # 가입 기간 (Lifetime) - 사용자가 체육관에 처음 등록한 이후 경과한 시간(개월 단위).
+            g.map(plt.hist, "Lifetime")
+            st.pyplot(plt)
+        elif radio_plot == "Pie":
+            with st.expander("Source"):
+                st.code("""
+# 이탈 분포 계산
+churn_counts = df['Churn'].value_counts()
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 막대 차트
+axes[0].bar(churn_counts.index, churn_counts.values)
+axes[0].set_xticks([0, 1])
+axes[0].set_xticklabels(['Retained', 'Churned'])
+axes[0].set_xlabel('Churn')
+axes[0].set_ylabel('Number of Customers')
+axes[0].set_title('Bar Chart')
+
+# 원형 차트
+axes[1].pie(churn_counts.values, labels=['Retained', 'Churned'], autopct='%1.1f%%', startangle=90)
+axes[1].set_title('Pie Chart')
+
+# 레이아웃 조정
+fig.suptitle('Customer Churn Distribution Overview', fontsize=16)
+plt.tight_layout()
+plt.show()
+                """)
+            plt.clf()
+
+            # Calculate churn distribution
+            churn_counts = df['Churn'].value_counts()
+
+            # Create subplots
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+            # Bar Chart
+            axes[0].bar(churn_counts.index, churn_counts.values)
+            axes[0].set_xticks([0, 1])
+            axes[0].set_xticklabels(['Retained', 'Churned'])
+            axes[0].set_xlabel('Churn')
+            axes[0].set_ylabel('Number of Customers')
+            axes[0].set_title('Bar Chart')
+
+            # Pie Chart
+            axes[1].pie(churn_counts.values, labels=['Retained', 'Churned'], autopct='%1.1f%%', startangle=90)
+            axes[1].set_title('Pie Chart')
+
+            # Adjust layout
+            fig.suptitle('Customer Churn Distribution Overview', fontsize=16)
+            plt.tight_layout()
+            st.pyplot(plt)
 
     elif radio_eda == "변수 변환 및 생성":
         st.text("")
