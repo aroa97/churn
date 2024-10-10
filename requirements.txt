@@ -11,3 +11,4 @@ mlxtend
 pyecharts
 streamlit-echarts
 gradio
+seaborn
