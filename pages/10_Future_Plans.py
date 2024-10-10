@@ -12,14 +12,16 @@ with tab[0]:
     st.image("./streamlit_images/future_plans/stable_diffusion.png", use_column_width=True)
 with tab[1]:
     st.subheader("LangChain")
-    col1, col2 = st.columns(2)
+
+    col1, _, _, col2, _  = st.columns(5)
 
     with col1:
+        func.image_resize("langchain_architecture.png", __file__, 400)
+    with col2:
         st.markdown("\n")
         st.image("./streamlit_images/future_plans/langchain_logo.png", use_column_width=True)
         st.markdown("\n")
         st.image("./streamlit_images/future_plans/openai_logo.png", use_column_width=True)
-    with col2:
         func.image_resize("pdf.png", __file__, 150)
 with tab[2]:
     st.header("WebServer")

@@ -10,7 +10,7 @@ st.set_page_config(page_title="마케팅 전략", layout="wide")
 
 st.title("마케팅 전략")
 
-tab = st.tabs(['도출 결과', '데이터 분석', '마케팅'])
+tab = st.tabs(['도출 결과', '데이터 분석', "예측 모델", '마케팅'])
 
 with tab[0]:
     st.text('멤버십 기간, 전 달 이용횟수, 정기이용여부')
@@ -188,7 +188,8 @@ plt.show()
             st.pyplot(plt)
 
     elif radio_eda == "변수 간의 관계 시각화":
-        radio_plot = st.radio(label="plot", label_visibility='collapsed', horizontal=True, options=["Pair Plot", "Bar", "Pie", "Histogram", "Violin Plot", "Linear, Scatter", "Etc", "Corrcoef"])
+        radio_plot = st.radio(label="plot", label_visibility='collapsed', horizontal=True, 
+                              options=["Pair Plot", "Bar", "Pie", "Histogram", "Violin Plot", "Linear, Scatter", "Etc", "Corrcoef"])
         if radio_plot == "Pair Plot":
             with st.expander("Source"):
                 st.code(""" 
@@ -226,6 +227,7 @@ plt.show()
             # 가입 기간 (Lifetime) - 사용자가 체육관에 처음 등록한 이후 경과한 시간(개월 단위).
             g.map(plt.hist, "Lifetime")
             st.pyplot(plt)
+        
         elif radio_plot == "Pie":
             with st.expander("Source"):
                 st.code("""
@@ -276,8 +278,186 @@ plt.show()
             plt.tight_layout()
             st.pyplot(plt)
 
+        elif radio_plot == "Histogram":
+            with st.expander("Source"):
+                st.code("""
+# 나이 분포
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 히스토그램
+axes[0].hist(df['Age'], bins=20)
+axes[0].set_xlabel('Age')
+axes[0].set_ylabel('Frequency')
+axes[0].set_title('Age Distribution Histogram')
+
+# 박스 플롯
+axes[1].boxplot(df['Age'])
+axes[1].set_xlabel('Age')
+axes[1].set_title('Age Distribution Box Plot')
+
+# 레이아웃 조정
+fig.suptitle('Customer Age Distribution', fontsize=16)
+plt.tight_layout()
+plt.show()
+                """)
+            plt.clf()
+
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+            axes[0].hist(df['Age'], bins=20)
+            axes[0].set_xlabel('Age')
+            axes[0].set_ylabel('Frequency')
+            axes[0].set_title('Age Distribution Histogram')
+
+            axes[1].boxplot(df['Age'])
+            axes[1].set_xlabel('Age')
+            axes[1].set_title('Age Distribution Box Plot')
+
+            fig.suptitle('Customer Age Distribution', fontsize=16)
+            plt.tight_layout()
+            st.pyplot(plt)
+        
+        elif radio_plot == "Violin Plot":
+            with st.expander("Source"):
+                st.code("""
+# 계약 기간 분석
+
+# 막대 차트: 계약 기간 빈도
+contract_counts = df['Contract_period'].value_counts()
+
+# Set color palette
+sns.set_palette("Set2")
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 막대 차트
+axes[0].bar(contract_counts.index, contract_counts.values, color=sns.color_palette("Set2"))
+axes[0].set_xlabel('Contract Period (Months)')
+axes[0].set_ylabel('Number of Customers')
+axes[0].set_title('Contract Period Frequency')
+axes[0].grid(True, linestyle='--', alpha=0.7)
+
+# 바이올린 플롯 with hue
+# hue로 지정한 변수를 기준으로 색상을 변경하여 서로 다른 그룹을 시각화
+sns.violinplot(x='Contract_period', y='Age', data=df, ax=axes[1], hue='Contract_period', palette="coolwarm", dodge=False, legend=False)
+axes[1].set_xlabel('Contract Period (Months)')
+axes[1].set_ylabel('Age')
+axes[1].set_title('Age Distribution by Contract Period')
+axes[1].grid(True, linestyle='--', alpha=0.7)
+
+# 레이아웃 조정 및 타이틀 추가
+fig.suptitle('Contract Period Analysis', fontsize=16)
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.show()
+                """)
+
+            plt.clf()
+            # Contract Period Analysis
+
+            # Bar Chart: Contract Period Frequency
+            contract_counts = df['Contract_period'].value_counts()
+
+            # Set color palette
+            sns.set_palette("Set2")
+
+            # Create subplots
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+            # Bar Chart
+            axes[0].bar(contract_counts.index, contract_counts.values, color=sns.color_palette("Set2"))
+            axes[0].set_xlabel('Contract Period (Months)')
+            axes[0].set_ylabel('Number of Customers')
+            axes[0].set_title('Contract Period Frequency')
+            axes[0].grid(True, linestyle='--', alpha=0.7)
+
+            # Violin Plot with hue
+            sns.violinplot(x='Contract_period', y='Age', data=df, ax=axes[1], hue='Contract_period', palette="coolwarm", dodge=False, legend=False)
+            axes[1].set_xlabel('Contract Period (Months)')
+            axes[1].set_ylabel('Age')
+            axes[1].set_title('Age Distribution by Contract Period')
+            axes[1].grid(True, linestyle='--', alpha=0.7)
+
+            # Adjust layout and add a main title
+            fig.suptitle('Contract Period Analysis', fontsize=16)
+            plt.tight_layout(rect=[0, 0, 1, 0.95])
+            st.pyplot(plt)
+
+        elif radio_plot == "Linear, Scatter":
+            with st.expander("Source"):
+                st.code("""
+# 총 평균 수업 빈도(Avg_class_frequency_total) 분석
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 선형 플롯: 가입 기간(Lifetime)의 총 평균 수업 빈도
+sns.lineplot(x='Lifetime', y='Avg_class_frequency_total', data=df, ax=axes[0])
+axes[0].set_xlabel('Lifetime (Months)')
+axes[0].set_ylabel('Average Class Frequency')
+axes[0].set_title('Average Class Frequency Over Lifetime')
+
+# 산점도 플롯: 수업 빈도(Class Frequency) vs. 고객 이탈(Churn)
+sns.scatterplot(x='Avg_class_frequency_total', y='Churn', data=df, ax=axes[1])
+axes[1].set_xlabel('Average Class Frequency')
+axes[1].set_ylabel('Churn')
+axes[1].set_title('Class Frequency vs. Churn')
+
+# 레이아웃 조정
+fig.suptitle('Average Class Frequency Analysis', fontsize=16)
+plt.tight_layout()
+plt.show()
+                """)
+            plt.clf()
+
+            # Average Class Frequency Analysis
+
+            # Create subplots
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+            # Line Plot: Average Class Frequency over Lifetime
+            sns.lineplot(x='Lifetime', y='Avg_class_frequency_total', data=df, ax=axes[0])
+            axes[0].set_xlabel('Lifetime (Months)')
+            axes[0].set_ylabel('Average Class Frequency')
+            axes[0].set_title('Average Class Frequency Over Lifetime')
+
+            # Scatter Plot: Class Frequency vs. Churn
+            sns.scatterplot(x='Avg_class_frequency_total', y='Churn', data=df, ax=axes[1])
+            axes[1].set_xlabel('Average Class Frequency')
+            axes[1].set_ylabel('Churn')
+            axes[1].set_title('Class Frequency vs. Churn')
+
+            # Adjust layout
+            fig.suptitle('Average Class Frequency Analysis', fontsize=16)
+            plt.tight_layout()
+            st.pyplot(plt)
+    
+        elif radio_plot == "Corrcoef":
+            with st.expander("Source"):
+                st.code("""
+plt.figure(figsize=(10, 8))
+sns.heatmap(df.corr(), annot=True, cmap=plt.cm.Blues, fmt=".2f")
+plt.title('Correlation Heatmap')
+plt.show()
+                """)
+            plt.clf()
+
+            plt.figure(figsize=(10, 8))
+            sns.heatmap(df.corr(), annot=True, cmap=plt.cm.Blues, fmt=".2f")
+            plt.title('Correlation Heatmap')
+            st.pyplot(plt)
+
     elif radio_eda == "변수 변환 및 생성":
-        st.text("")
+        st.code("""
+# 변수 제거
+df = df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+""")
+
+with tab[2]:
+    st.subheader("Predictive Model")
+
+    st.markdown("""
+회귀 모델의 정확도를 높이는 과정 
+\n 단순선형 -> 다중 or 다항, 규제를 적용, DecisionTreeRegressor -> 앙상블(RF:랜덤포레스트)
+""")
 
 with tab[-1]:
     st.subheader("Marketing")
