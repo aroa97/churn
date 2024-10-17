@@ -8,7 +8,7 @@ st.set_page_config(page_title="회원탈퇴예측", layout="wide")
 
 st.title("회원탈퇴예측")
 
-tab = st.tabs(['데이터 준비', '모델 학습', '모델 평가 및 튜닝'])
+tab = st.tabs(['데이터 준비', '모델 학습', '모델 평가 및 튜닝', '도출 결과'])
 
 with tab[0]:
     predict_data = pd.read_csv('./database/predict_data2.csv', encoding='cp949')
@@ -97,7 +97,7 @@ print(score_test)
     st.image('./streamlit_images/python/python_decisiontree_predict.png', width=500)
 with tab[2]:
     st.subheader('모델 평가 및 튜닝')
-    radio = st.radio(label="", label_visibility='collapsed', options=["과적합 방지", "주요 변수 확인", '혼동 행렬(Confusion matrix)'], horizontal=True)
+    radio = st.radio(label="score", label_visibility='collapsed', options=["과적합 방지", "주요 변수 확인", '혼동 행렬(Confusion matrix)'], horizontal=True)
 
     if radio == '과적합 방지':
         st.image("./streamlit_images/python/python_decisiontree_score.png", width=300)
@@ -135,3 +135,8 @@ print(model.score(X_test, y_test))
             st.markdown("**Precision(정밀도)** : 238 / (238 + 17) = :red[**0.9333333333333333**]")
             st.markdown("**Sensitivity(민감도/재현율)** : 238 / (238 + 33) = :red[**0.8782287822878229**]")
             st.markdown("**F1-score** : 2 * (민감도 * 정밀도) / (민감도 + 정밀도) = :red[**0.9049429657794676**]")
+with tab[3]:
+    st.subheader("도출 결과")
+    st.markdown('회원탈퇴에는 **멤버십 기간**, **전 달 이용횟수**, 정기이용여부 등이 가장 많은 영향이 미쳤다.')
+    st.text('마케팅 전략으로는 멤버십 기간이 길거나 멤버십을 6개월이상 미리 등록하면 할인을 해준다던지')
+    st.text('전 달 이용횟수가 일정이상이면 회원에게 이득이 되는 이벤트를 하는 등이 있을 것 같다.')
