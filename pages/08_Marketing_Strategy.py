@@ -190,7 +190,7 @@ plt.show()
 
     elif radio_eda == "변수 간의 관계 시각화":
         radio_plot = st.radio(label="plot", label_visibility='collapsed', horizontal=True, 
-                              options=["Pair Plot", "Bar", "Pie", "Histogram", "Violin Plot", "Linear, Scatter", "Etc", "Corrcoef"])
+                              options=["Pair Plot", "Bar", "Pie", "Histogram", "Violin Plot", "Linear, Scatter", "Corrcoef"])
         if radio_plot == "Pair Plot":
             with st.expander("Source"):
                 st.code(""" 
@@ -485,7 +485,7 @@ with tab[1]:
 
     st.markdown("""
 회귀 모델의 정확도를 높이는 과정 
-\n 단순선형 -> 다중 or 다항, 규제를 적용, DecisionTreeRegressor, DecisionTreeClassifier -> 모델 튜닝[하이퍼파라미터 서치, 교차 검증, 앙상블(RF:랜덤포레스트)]
+\n 단순선형 -> 다중 or 다항, 규제를 적용 -> DecisionTreeRegressor, DecisionTreeClassifier -> 모델 튜닝[하이퍼파라미터 서치, 교차 검증, 앙상블(RF:랜덤 포레스트)]
 """)
     radio_model = st.radio(label="model", label_visibility='collapsed', horizontal=True, options=["선형회귀", "다중,다항 회귀", "의사결정나무", "모델 튜닝"])
 
@@ -677,8 +677,6 @@ print(model.coef_)
                 st.text("intercept, coefficient")
                 func.image_resize("standardscaler_model_intercept_coef.png",__file__, 500)
                 
-
-
     elif radio_model == "의사결정나무":
         tab_decision = st.tabs(["의사결정나무", "RANSAC", "모델 평가"])
 
@@ -722,22 +720,576 @@ print(model2.score(X_test, y_test))
             st.text("RANSACRegressor는 Scikit-learn에서 제공하는 강건 회귀 기법으로, 데이터에 포함된 이상치(outlier)에 영향을 최소화하여 모델을 학습하는 데 사용됩니다.")
             st.text('RANSAC은 "Random Sample Consensus"의 약자로, 샘플 데이터를 무작위로 선택하여 반복적으로 모델을 학습하고 평가하여 최적의 모델을 찾습니다.')
 
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.code("""
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import RANSACRegressor
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+                        
+df = pd.read_csv('https://raw.githubusercontent.com/rasbt/'
+                 'python-machine-learning-book-3rd-edition/'
+                 'master/ch10/housing.data.txt',
+                 header=None,
+                 sep='\s+')
+
+df.columns = ['CRIM', 'ZN', 'INDUS', 'CHAS',
+              'NOX', 'RM', 'AGE', 'DIS', 'RAD',
+              'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+
+X = df[['RM']].values
+y = df['MEDV'].values                        
+
+ransac = RANSACRegressor(LinearRegression(),
+                         max_trials=100,
+                         min_samples=50,
+                         loss='absolute_error',
+                         residual_threshold=5.0,
+                         random_state=0)
+
+ransac.fit(X, y)
+
+inlier_mask = ransac.inlier_mask_
+outlier_mask = np.logical_not(inlier_mask)
+
+line_X = np.arange(3, 10, 1)
+line_y_ransac = ransac.predict(line_X[:, np.newaxis])
+plt.scatter(X[inlier_mask], y[inlier_mask],
+            c='steelblue', edgecolor='white',
+            marker='o', label='Inliers')
+plt.scatter(X[outlier_mask], y[outlier_mask],
+            c='limegreen', edgecolor='white',
+            marker='s', label='Outliers')
+plt.plot(line_X, line_y_ransac, color='black', lw=2)
+plt.xlabel('Average number of rooms [RM]')
+plt.ylabel('Price in $1000s [MEDV]')
+plt.legend(loc='upper left')
+
+plt.show()                        
+""")
+            with col2:
+                st.image("./streamlit_images/marketing_strategy/ransac_plt.png", use_column_width=True)
+
         with tab_decision[2]:
-            radio_evaluation = st.radio(label="score", label_visibility="collapsed", horizontal=True, options=["의사결정나무", "RANSAC"])
-            if radio_evaluation == "의사결정나무":
-                col1, col2 = st.columns(2)
+            st.text("Receiver Operating Characteristic (ROC) 곡선은 이진 분류 모델의 성능을 평가하는 데 사용되는 그래프입니다.")
 
-                with col2:
-                    st.text("evaluation")
-                    func.image_resize("decisiontree_model_evaluation.png",__file__,200)
+            col1, col2 = st.columns(2)
 
+            with col1:
+                st.code("""
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score                     
+
+y_pred = model.predict(X_test)
+
+test_accuracy = accuracy_score(y_test, y_pred)
+test_precision = precision_score(y_test, y_pred, average='binary')
+test_recall = recall_score(y_test, y_pred, average='binary')
+test_f1 = f1_score(y_test, y_pred, average='binary')
+
+print(f'Test Accuracy: {test_accuracy:.4f}')
+print(f'Test Precision: {test_precision:.4f}')
+print(f'Test Recall: {test_recall:.4f}')
+print(f'Test F1 Score: {test_f1:.4f}')
+""")
+                st.code("""
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+                                                                        
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (Test Set)')
+plt.show()
+""")
+                
+                st.code("""
+from sklearn.metrics import roc_curve, roc_auc_score
+                        
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()                        
+""")
+
+            with col2:
+                st.text("evaluation")
+                func.image_resize("decisiontree_model_evaluation.png",__file__,150)
+                st.text("confusion matrix")
+                func.image_resize("decisiontree_model_confusion_matrix.png", __file__, 400)
+                st.text("ROC Curve")
+                func.image_resize("decisiontree_model_roc_curve.png",__file__,400)
+                
+    elif radio_model == "모델 튜닝":
+        tab_tuning = st.tabs(["하이퍼파라미터 서치", "교차 검증", "랜덤 포레스트", "GridSearch + KFlod + RandomForest", "AdaBoost", "모델 비교"])
+
+        with tab_tuning[0]:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.code("""
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report
+
+df = pd.read_csv('./data/gym_churn_us.csv')
+df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+X = df.drop(["Churn"], axis=1)
+y = df["Churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = DecisionTreeClassifier()
+
+# 하이퍼파라미터 그리드 설정
+param_grid = {
+    # 트리의 최대 깊이. 과적합을 방지하기 위해 사용합니다.
+    'max_depth': [None] + [i for i in range(1, 15 + 1)],
+    # 내부 노드를 분할하기 위한 최소 샘플 수. 이 값이 높을수록 과적합을 줄일 수 있습니다.
+    'min_samples_split': [i for i in range(2, 10)],
+    'random_state' : [42]
+}   
+
+# 그리드 서치 설정
+grid_search = GridSearchCV(estimator=model, param_grid=param_grid, scoring='accuracy')
+
+# 그리드 서치 실행
+grid_search.fit(X_train, y_train)
+
+# 최적의 파라미터 및 성능 확인
+print("최적의 파라미터:", grid_search.best_params_)
+print("최고 정확도:", grid_search.best_score_)
+
+# 최적의 모델로 예측 수행
+best_model = grid_search.best_estimator_
+y_pred = best_model.predict(X_test)
+
+# 분류 성능 보고서
+# precision, recall, f1-score: 각 클래스에 대한 성능 지표.
+# support: 각 클래스의 실제 샘플 수.
+# accuracy: 전체 정확도.
+# macro avg: 각 클래스의 평균을 단순 평균한 것.
+# weighted avg: 각 클래스의 성능 지표를 샘플 수로 가중 평균한 것
+print(classification_report(y_test, y_pred))                                                
+""")
+            with col2:
+                st.text("evaluation")
+                func.image_resize("gridsearch_model_evaluation_01.png",__file__, 150)
+                st.text("classification_report")
+                func.image_resize("gridsearch_model_evaluation_02.png",__file__, 200)
+        
+        with tab_tuning[1]:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.code("""
+import numpy as np
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import KFold
+                        
+df = pd.read_csv('./data/gym_churn_us.csv')
+df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+X = df.drop(["Churn"], axis=1)
+y = df["Churn"]
+                        
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+model = DecisionTreeClassifier(random_state=42)
+
+for i, (train_index, test_index) in enumerate(kf.split(X)):
+    X_train, X_test = X.iloc[train_index, :], X.iloc[test_index, :]
+    y_train, y_test = y[train_index], y[test_index]
+    
+    # 모델 학습
+    model.fit(X_train, y_train)
+    
+    # 예측
+    y_pred = model.predict(X_test)
+    
+    # 정확도 계산
+    print(classification_report(y_test, y_pred))                        
+""")
+            with col2:
+                st.text("evaluation")
+                func.image_resize("kfold_model_evaluation_06.png",__file__, 150)
+                st.text("classification_report")
+                st.image("./streamlit_images/marketing_strategy/kfold_model_evaluation_01.png", width=500)
+                st.image("./streamlit_images/marketing_strategy/kfold_model_evaluation_02.png", width=500)
+                st.image("./streamlit_images/marketing_strategy/kfold_model_evaluation_03.png", width=500)
+                st.image("./streamlit_images/marketing_strategy/kfold_model_evaluation_04.png", width=500)
+                st.image("./streamlit_images/marketing_strategy/kfold_model_evaluation_05.png", width=500)
+
+        with tab_tuning[2]:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.code("""
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier                   
+
+df = pd.read_csv('./data/gym_churn_us.csv')
+df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+X = df.drop(["Churn"], axis=1)
+y = df["Churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)                        
+                """)
+                with st.expander("모델 평가 Source Code"):
+                    st.code("""
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns       
+from sklearn.metrics import roc_curve, roc_auc_score                                             
+                        
+y_pred = model.predict(X_test)
+
+test_accuracy = accuracy_score(y_test, y_pred)
+test_precision = precision_score(y_test, y_pred, average='binary')
+test_recall = recall_score(y_test, y_pred, average='binary')
+test_f1 = f1_score(y_test, y_pred, average='binary')                                           
+                    """)
+                    st.code("""
+print(classification_report(y_test, y_pred))
+                    """)
+                    st.code("""
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (Test Set)')
+plt.show()
+                    """)
+                    st.code("""
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
+                    """)
+            with col2:
+                st.text("모델 평가")
+                st.text("evaluation")
+                func.image_resize("randomforest_model_evaluation_01.png",__file__, 150)
+                st.text("classification_report")
+                func.image_resize("randomforest_model_evaluation_02.png",__file__, 200)
+                st.text("confusion matrix")
+                func.image_resize("randomforest_model_confusion_matrix.png",__file__, 400)
+                st.text("roc curve")
+                func.image_resize("randomforest_model_roc_curve.png",__file__, 400)
+
+        with tab_tuning[3]:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.code("""
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold
+                        
+df = pd.read_csv('./data/gym_churn_us.csv')
+df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+X = df.drop(["Churn"], axis=1)
+y = df["Churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)    
+
+# 하이퍼파라미터 그리드 설정
+param_grid = {
+    # 랜덤 포레스트에 포함할 결정 트리의 수입니다. 기본값은 100입니다. 이 값이 클수록 모델의 성능이 향상될 수 있지만, 계산 비용도 증가합니다.
+    'n_estimators': [10, 50, 100],
+    # 트리의 최대 깊이. 과적합을 방지하기 위해 사용합니다.
+    'max_depth': [None] + [i for i in range(1, 15 + 1)],
+    # 내부 노드를 분할하기 위한 최소 샘플 수. 이 값이 높을수록 과적합을 줄일 수 있습니다.
+    'min_samples_split': [i for i in range(2, 10)],
+    'random_state' : [42]
+}      
+
+# StratifiedKFold는 Scikit-learn에서 제공하는 교차 검증 방법 중 하나로, 데이터를 K개의 폴드로 나눌 때 각 폴드의 클래스 비율을 원본 데이터와 동일하게 유지하는 방법입니다
+cv_strategy = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)   
+
+grid_search = GridSearchCV(estimator=RandomForestClassifier(), param_grid=param_grid, cv=cv_strategy)  
+grid_search.fit(X_train, y_train)                                                                                                         
+                """)
+                with st.expander("모델 평가 Source Code"):
+                    st.code("""
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns       
+from sklearn.metrics import roc_curve, roc_auc_score                                             
+                        
+y_pred = model.predict(X_test)
+
+test_accuracy = accuracy_score(y_test, y_pred)
+test_precision = precision_score(y_test, y_pred, average='binary')
+test_recall = recall_score(y_test, y_pred, average='binary')
+test_f1 = f1_score(y_test, y_pred, average='binary')                                           
+                    """)
+                    st.code("""
+print(classification_report(y_test, y_pred))
+                    """)
+                    st.code("""
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (Test Set)')
+plt.show()
+                    """)
+                    st.code("""
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
+                    """)
+            with col2:
+                st.text("모델 평가")
+                st.text("evaluation")
+                func.image_resize("grid_kfold_randomforest_model_evaluation_01.png",__file__, 150)
+                st.text("classification_report")
+                func.image_resize("grid_kfold_randomforest_model_evaluation_02.png",__file__, 150)
+                st.text("confusion matrix")
+                func.image_resize("grid_kfold_randomforest_model_confusion_matrix.png",__file__, 400)
+                st.text("roc curve")
+                func.image_resize("grid_kfold_randomforest_model_roc_curve.png",__file__, 400)
+
+        with tab_tuning[4]:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.code("""
+import numpy as np
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import AdaBoostClassifier
+
+df = pd.read_csv('./data/gym_churn_us.csv')
+df.drop(["Phone", "Near_Location"], axis=1, inplace=True)
+X = df.drop(["Churn"], axis=1)
+y = df["Churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 약한 학습기로 결정 트리 사용
+base_estimator = DecisionTreeClassifier(max_depth=1)      
+
+# AdaBoost 모델 초기화
+model = AdaBoostClassifier(estimator=base_estimator, n_estimators=50, random_state=42)
+
+# 모델 학습
+model.fit(X_train, y_train)                                          
+                """)
+                with st.expander("모델 평가 Source Code"):
+                    st.code("""
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns       
+from sklearn.metrics import roc_curve, roc_auc_score                                             
+                        
+y_pred = model.predict(X_test)
+
+test_accuracy = accuracy_score(y_test, y_pred)
+test_precision = precision_score(y_test, y_pred, average='binary')
+test_recall = recall_score(y_test, y_pred, average='binary')
+test_f1 = f1_score(y_test, y_pred, average='binary')                                           
+                    """)
+                    st.code("""
+print(classification_report(y_test, y_pred))
+                    """)
+                    st.code("""
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (Test Set)')
+plt.show()
+                    """)
+                    st.code("""
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
+                    """)
+            with col2:
+                st.text("모델 평가")
+                st.text("evaluation")
+                func.image_resize("adaboost_model_evaluation_01.png",__file__, 150)
+                st.text("classification_report")
+                func.image_resize("adaboost_model_evaluation_02.png",__file__, 200)
+                st.text("confusion matrix")
+                func.image_resize("adaboost_model_confusion_matrix.png",__file__, 400)
+                st.text("roc curve")
+                func.image_resize("adaboost_model_roc_curve.png",__file__, 400)
+
+        with tab_tuning[5]:
+            st.image("./streamlit_images/marketing_strategy/model_comparison.png", use_column_width=True)
+            with st.expander("Source Code", expanded=False):
+                st.code("""
+import numpy as np
+import matplotlib.pyplot as plt
+                        
+models = ['DecisionTree','GridSearch','KFold', 'Random Forest', 'Grid+KFold+RF', 'AdaBoost']
+
+# accuracy, precision, recall, f1 score
+decisiontree = [0.8875, 0.7819, 0.7690, 0.7754]
+gridsearch = [0.8842, 0.7867, 0.7426, 0.7640]
+kfold = [0.8962, 0.8341, 0.8017, 0.8176]
+randomforest = [0.9108, 0.8403, 0.7987, 0.8190]
+grid_kfold_randomforest = [0.9150, 0.8478, 0.8086, 0.8277]
+adaboost = [0.9225, 0.8646, 0.8218, 0.8426]        
+
+accuracy = [decisiontree[0], gridsearch[0], kfold[0], randomforest[0], grid_kfold_randomforest[0], adaboost[0]]
+precision = [decisiontree[1], gridsearch[1], kfold[1], randomforest[1], grid_kfold_randomforest[1], adaboost[1]]
+recall = [decisiontree[2], gridsearch[2], kfold[2], randomforest[2], grid_kfold_randomforest[2], adaboost[2]]
+f1_score = [decisiontree[3], gridsearch[3], kfold[3], randomforest[3], grid_kfold_randomforest[3], adaboost[3]]
+
+# Set the width of the bars
+bar_width = 0.1
+
+# Set the positions of the bars on the x-axis
+r1 = np.arange(len(models))
+r2 = [x + bar_width for x in r1]
+r3 = [x + bar_width for x in r2]
+r4 = [x + bar_width for x in r3]   
+
+# Create the bar chart
+fig, ax = plt.subplots(figsize=(12, 6))
+bars1 = ax.bar(r1, accuracy, bar_width, label='Accuracy')
+bars2 = ax.bar(r2, precision, bar_width, label='Precision')
+bars3 = ax.bar(r3, recall, bar_width, label='Recall')
+bars4 = ax.bar(r4, f1_score, bar_width, label='F1-score')
+
+# Add labels, title, and legend
+ax.set_xlabel('Models')
+ax.set_ylabel('Scores')
+ax.set_title('Model Comparison')
+ax.set_xticks([r + bar_width for r in range(len(models))])
+ax.set_xticklabels(models)
+ax.legend(loc='lower center')
+
+# Add value labels on top of bars
+def autolabel(bars):
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate('{:.2f}'.format(height),
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+autolabel(bars1)
+autolabel(bars2)
+autolabel(bars3)
+autolabel(bars4)
+
+# Display the chart
+plt.tight_layout()
+plt.show()                                                                                     
+                """)
+          
 with tab[-1]:
     st.subheader("Marketing")
 
-    radio_marketing = st.radio(label='marketing', label_visibility='collapsed', horizontal=True, options=["온라인 마케팅", "오프라인 마케팅"])
-    
-    if radio_marketing == '온라인 마케팅':
-        st.text("홈페이지 서비스, 이벤트, 이메일")
+    st.markdown("회원탈퇴에는 **가입 기간**, **월 수업 빈도**, 나이 등이 가장 많은 영향이 미쳤다.")
+    st.markdown("""서로 다른 두 회원 데이터셋을 사용해 탈퇴예측모델을 만들어 비교해보았더니 주요 변수로 **가입 기간(멤버십 기간)**이 공통적으로 나타났습니다. 이에 따른 마케팅 전략을 제안합니다.""")
 
-    elif radio_marketing == '오프라인 마케팅':
-        st.text("전단지, 프로모션 및 할인")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.text("GridSearch + KFold + RandomForest Model Coefficient")
+        func.image_resize("grid_kfold_randomforest_model_coef.png",__file__,500)
+    with col2:
+        radio_strategy = st.radio(label="strategy", label_visibility="collapsed", horizontal=True, options=["온라인", "오프라인"])    
+        
+        if radio_strategy == "온라인":
+            st.markdown("### 온라인")
+            st.markdown("""**1. 타겟 광고 캠페인**
+                            \n- 가입 기간이 짧은 회원을 대상으로 특별 할인이나 혜택을 제공하는 광고를 진행합니다.
+                            \n- 예: "3개월 이내 가입한 회원님께 20% 할인 제공!"과 같은 메시지를 사용할 수 있습니다.""")
+            st.markdown("""**2. 리타게팅 광고**
+                            \n- 탈퇴 가능성이 높은 회원에게 리타게팅 광고를 통해 재가입을 유도하는 메시지를 보냅니다.
+                            \n- 가입 기간에 따라 개인화된 혜택을 제시하여 다시 방문하도록 유도합니다.""")
+            st.markdown("""**3. 소셜 미디어 캠페인**
+                            \n- 장기 가입 회원의 성공 사례나 혜택을 강조하는 콘텐츠를 제작하여 소셜 미디어에서 공유합니다.
+                            \n- 가입 기간이 긴 회원의 후기나 경험담을 활용해 신뢰성을 높입니다.""")
+            st.markdown("""**4. 이메일 마케팅**
+                            \n- 특정 기간 동안 활동이 적었던 회원에게 맞춤형 이메일을 발송하여 관심을 재유도합니다.
+                            \n- 예: "당신의 멤버십 기간이 6개월이 되셨습니다! 특별한 혜택을 확인하세요!"와 같은 내용.""")
+            
+        elif radio_strategy == "오프라인":
+            st.markdown("### 오프라인")
+            st.markdown("""**1. 회원 초대 이벤트**
+                            \n- 가입 기간이 짧은 회원을 초대하여 무료 체험 클래스나 이벤트를 진행합니다.
+                            \n- 기존 회원과의 네트워킹 기회를 제공하여 소속감을 느끼게 합니다.""")
+            st.markdown("""**2. 특별 프로모션**
+                            \n- 가입 기간이 짧은 회원에게 특별 할인 혜택이나 추가 서비스(예: PT 무료 체험)를 제공합니다.
+                            \n- 이와 함께 멤버십 연장 혜택도 함께 제시합니다.""")
+            st.markdown("""**3. 고객 피드백 수집**
+                            \n- 탈퇴 가능성이 있는 회원을 대상으로 설문조사를 진행하여 이탈 이유를 파악합니다.
+                            \n- 이를 통해 서비스를 개선하고 개인화된 솔루션을 제공할 수 있습니다.""")
+            st.markdown("""**4. 장기 가입 유도 프로그램**
+                            \n- 특정 기간 이상 가입 시 보상 프로그램을 마련하여 장기 가입을 유도합니다.
+                            \n- 예: "1년 이상 가입 시 1개월 무료"와 같은 인센티브 제공.""")
+            
