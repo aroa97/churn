@@ -11,7 +11,8 @@ with col1:
     st.subheader("인적사항")
     st.text("생년월일 : 1997.04.17")
     st.text("이메일 주소 : saro97@naver.com, ehild97@gmail.com")
-    st.markdown("**현재 세종교육에서 직업훈련(인공지능) 중**")
+    st.markdown("세종교육에서 직업훈련(인공지능) 이수")
+    st.markdown("현재 (주)그림에서 재직 중")
 
     st.markdown("\n")
 
